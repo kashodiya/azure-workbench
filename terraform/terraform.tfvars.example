@@ -2,6 +2,9 @@
 # Copy this file to terraform.tfvars and fill in your actual values
 # DO NOT commit terraform.tfvars to version control
 
+# Project configuration
+project_name = "azure-workbench"
+
 # Azure Subscription ID
 subscription_id = "your-subscription-id-here"
 
@@ -12,7 +15,9 @@ tenant_id     = "your-tenant-id-here"
 
 # Resource configuration
 resource_group_name = "azure-workbench-rg"
-location           = "East US"
+vm_name            = "vm"
+vm_size            = "Standard_B2s"
+admin_username     = "azureuser"
 
 # Tags
 tags = {

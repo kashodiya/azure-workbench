@@ -2,7 +2,7 @@
 
 # Create a virtual network
 resource "azurerm_virtual_network" "main" {
-  name                = "${var.vm_name}-vnet"
+  name                = "${var.project_name}-vnet"
   address_space       = ["10.0.0.0/16"]
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
@@ -12,7 +12,7 @@ resource "azurerm_virtual_network" "main" {
 
 # Create a subnet
 resource "azurerm_subnet" "internal" {
-  name                 = "${var.vm_name}-subnet"
+  name                 = "${var.project_name}-subnet"
   resource_group_name  = data.azurerm_resource_group.main.name
   virtual_network_name = azurerm_virtual_network.main.name
   address_prefixes     = ["10.0.2.0/24"]
@@ -20,7 +20,7 @@ resource "azurerm_subnet" "internal" {
 
 # Create public IP
 resource "azurerm_public_ip" "main" {
-  name                = "${var.vm_name}-public-ip"
+  name                = "${var.project_name}-public-ip"
   resource_group_name = data.azurerm_resource_group.main.name
   location            = data.azurerm_resource_group.main.location
   allocation_method   = "Static"
@@ -31,7 +31,7 @@ resource "azurerm_public_ip" "main" {
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "main" {
-  name                = "${var.vm_name}-nsg"
+  name                = "${var.project_name}-nsg"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 
@@ -76,7 +76,7 @@ resource "azurerm_network_security_group" "main" {
 
 # Create network interface
 resource "azurerm_network_interface" "main" {
-  name                = "${var.vm_name}-nic"
+  name                = "${var.project_name}-nic"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
 
@@ -108,7 +108,7 @@ resource "random_id" "randomId" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "main" {
-  name                     = "diag${random_id.randomId.hex}"
+  name                     = "${replace(lower(var.project_name), "-", "")}diag${random_id.randomId.hex}"
   location                 = data.azurerm_resource_group.main.location
   resource_group_name      = data.azurerm_resource_group.main.name
   account_tier             = "Standard"
@@ -125,7 +125,7 @@ resource "tls_private_key" "ssh" {
 
 # Create virtual machine
 resource "azurerm_linux_virtual_machine" "main" {
-  name                = var.vm_name
+  name                = "${var.project_name}-${var.vm_name}"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
   size                = var.vm_size

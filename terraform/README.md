@@ -25,6 +25,9 @@ cp terraform.tfvars.example terraform.tfvars
 Edit `terraform.tfvars` with your Azure credentials:
 
 ```hcl
+# Project configuration
+project_name = "azure-workbench"
+
 # Azure Subscription ID
 subscription_id = "your-subscription-id-here"
 
@@ -35,7 +38,9 @@ tenant_id     = "your-tenant-id-here"
 
 # Resource configuration
 resource_group_name = "azure-workbench-rg"
-location           = "East US"
+vm_name            = "vm"
+vm_size            = "Standard_B2s"
+admin_username     = "azureuser"
 ```
 
 ### 2. Alternative: Environment Variables
@@ -95,8 +100,38 @@ terraform destroy
 
 This configuration currently creates:
 
-- Azure Resource Group with configurable name and location
+- **Virtual Network**: `{project_name}-vnet` with address space 10.0.0.0/16
+- **Subnet**: `{project_name}-subnet` with address prefix 10.0.2.0/24
+- **Public IP**: `{project_name}-public-ip` with static allocation
+- **Network Security Group**: `{project_name}-nsg` with SSH, HTTP, and HTTPS rules
+- **Network Interface**: `{project_name}-nic` connecting VM to subnet and public IP
+- **Storage Account**: `{project_name}diag{random_id}` for boot diagnostics (lowercase, no dashes)
+- **Linux Virtual Machine**: `{project_name}-{vm_name}` running Ubuntu 22.04 LTS
+- **SSH Key Pair**: Auto-generated RSA 4096-bit key for secure access
 - Basic tagging structure for resource management
+
+All resources use the `project_name` variable as a prefix, making it easy to identify and manage related resources.
+
+## Configuration Variables
+
+### Key Variables
+
+- **`project_name`**: Used as a prefix for all Azure resources (default: "azure-workbench")
+- **`resource_group_name`**: Name of the existing Azure Resource Group to use
+- **`vm_name`**: Name suffix for the virtual machine (default: "vm")
+- **`vm_size`**: Azure VM size (default: "Standard_B2s")
+- **`admin_username`**: Admin username for the VM (default: "azureuser")
+
+### Resource Naming Convention
+
+Resources are named using the pattern: `{project_name}-{resource_type}`
+
+Examples with `project_name = "my-project"`:
+- Virtual Network: `my-project-vnet`
+- Virtual Machine: `my-project-vm`
+- Public IP: `my-project-public-ip`
+- Network Security Group: `my-project-nsg`
+- Storage Account: `myprojectdiag{random_id}` (special case for storage naming requirements)
 
 ## Extending the Configuration
 

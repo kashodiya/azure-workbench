@@ -1,4 +1,8 @@
 
+output "project_name" {
+  description = "Name of the project used as prefix for resources"
+  value       = var.project_name
+}
 
 output "resource_group_name" {
   description = "Name of the existing resource group"
