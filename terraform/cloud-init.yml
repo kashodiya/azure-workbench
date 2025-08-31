@@ -1,0 +1,14 @@
+#cloud-config
+package_update: true
+packages:
+  - git
+  - curl
+  - wget
+
+runcmd:
+  - wget -O /tmp/azure-workbench.tar.gz "${project_url}"
+  - mkdir -p /home/${admin_username}/source
+  - tar -xzf /tmp/azure-workbench.tar.gz -C /home/${admin_username}/source --strip-components=1
+  - chown -R ${admin_username}:${admin_username} /home/${admin_username}/source
+  - chmod +x /home/${admin_username}/source/vm-setup/*.sh
+  - sudo -u ${admin_username} bash /home/${admin_username}/source/vm-setup/main.sh
