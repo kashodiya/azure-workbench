@@ -1,0 +1,23 @@
+
+# Copy this file to terraform.tfvars and fill in your actual values
+# DO NOT commit terraform.tfvars to version control
+
+# Azure Subscription ID
+subscription_id = "your-subscription-id-here"
+
+# Azure Service Principal credentials
+client_id     = "your-client-id-here"
+client_secret = "your-client-secret-here"
+tenant_id     = "your-tenant-id-here"
+
+# Resource configuration
+resource_group_name = "azure-workbench-rg"
+location           = "East US"
+
+# Tags
+tags = {
+  Environment = "Development"
+  Project     = "Azure Workbench"
+  ManagedBy   = "Terraform"
+}
+
