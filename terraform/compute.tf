@@ -108,7 +108,7 @@ resource "random_id" "randomId" {
 
 # Create storage account for boot diagnostics
 resource "azurerm_storage_account" "main" {
-  name                     = "${replace(lower(var.project_name), "-", "")}diag${random_id.randomId.hex}"
+  name                     = "awbdiag${random_id.randomId.hex}"
   location                 = data.azurerm_resource_group.main.location
   resource_group_name      = data.azurerm_resource_group.main.name
   account_tier             = "Standard"
