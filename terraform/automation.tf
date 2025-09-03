@@ -65,7 +65,7 @@ resource "azurerm_automation_schedule" "stop_vm" {
   automation_account_name = azurerm_automation_account.main.name
   frequency               = "Day"
   interval                = 1
-  start_time              = formatdate("2006-01-02T20:00:00Z", timeadd(timestamp(), "24h"))
+  start_time              = timeadd(timestamp(), "10m")
   timezone                = var.timezone
 }
 
@@ -76,7 +76,7 @@ resource "azurerm_automation_schedule" "start_vm" {
   automation_account_name = azurerm_automation_account.main.name
   frequency               = "Day"
   interval                = 1
-  start_time              = formatdate("2006-01-02T06:00:00Z", timeadd(timestamp(), "24h"))
+  start_time              = timeadd(timestamp(), "15m")
   timezone                = var.timezone
 }
 
@@ -88,8 +88,8 @@ resource "azurerm_automation_job_schedule" "stop_vm" {
   runbook_name            = azurerm_automation_runbook.stop_vm.name
 
   parameters = {
-    ResourceGroupName = data.azurerm_resource_group.main.name
-    VMName           = azurerm_linux_virtual_machine.main.name
+    resourcegroupname = data.azurerm_resource_group.main.name
+    vmname           = azurerm_linux_virtual_machine.main.name
   }
 }
 
@@ -101,8 +101,8 @@ resource "azurerm_automation_job_schedule" "start_vm" {
   runbook_name            = azurerm_automation_runbook.start_vm.name
 
   parameters = {
-    ResourceGroupName = data.azurerm_resource_group.main.name
-    VMName           = azurerm_linux_virtual_machine.main.name
+    resourcegroupname = data.azurerm_resource_group.main.name
+    vmname           = azurerm_linux_virtual_machine.main.name
   }
 }
 
