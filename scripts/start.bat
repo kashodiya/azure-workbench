@@ -36,6 +36,13 @@ doskey ssh=%SSH_COMMAND%
 doskey env=type outputs.env
 doskey deploy=call "%~dp0deploy-to-vm.bat" %ADMIN_USERNAME% %PUBLIC_IP%
 doskey reload=call "%~dp0start.bat"
+doskey start=az vm start --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
+doskey restart=az vm restart --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
+doskey shutdown=az vm deallocate --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
+doskey forget=ssh-keygen -R %PUBLIC_IP%
+doskey openhands=start https://%PUBLIC_IP%:5000
+doskey portainer=start https://172.191.76.32:5003
+doskey vscode=start https://172.191.76.32:5002/?folder=/home/azureuser
 
 echo.
 echo ========================================
@@ -52,4 +59,11 @@ echo   ssh     - connect to VM
 echo   env     - show environment variables
 echo   deploy  - deploy to VM (usage: deploy user host [path])
 echo   reload  - reload this script
+echo   start   - start the VM
+echo   restart - restart the VM
+echo   shutdown - shutdown/deallocate the VM
+echo   forget  - forget SSH host key
+echo   openhands - open OpenHands in browser
+echo   portainer - open Portainer in browser
+echo   vscode  - open VSCode in browser
 echo ========================================

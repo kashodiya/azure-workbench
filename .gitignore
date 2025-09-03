@@ -102,5 +102,6 @@ credentials/
 *.crt
 *.p12
 *.pfx
+users.txt
 
 

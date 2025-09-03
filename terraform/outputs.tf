@@ -1,27 +1,16 @@
-# Output the public IP address of the VM
-output "public_ip_address" {
-  value = azurerm_public_ip.main.ip_address
+output "vm_resource_id" {
+  value = azurerm_linux_virtual_machine.main.id
+  description = "Resource ID of the virtual machine"
 }
 
-# Output the SSH connection command
-output "ssh_connection_command" {
-  value = "ssh -i private_key.pem ${var.admin_username}@${azurerm_public_ip.main.ip_address}"
-}
-
-# Output your current IP that has access
-output "your_current_ip" {
-  value = local.my_ip
-  description = "Your current public IP address that has access to the VM"
-}
-
-# Save SSH private key to file
+# Save private key to file
 resource "local_file" "private_key" {
-  content  = tls_private_key.ssh.private_key_pem
-  filename = "private_key.pem"
+  content         = tls_private_key.ssh.private_key_pem
+  filename        = "private_key.pem"
   file_permission = "0600"
 }
 
-# Generate outputs.env file
+# Create outputs.env file
 resource "local_file" "outputs_env" {
   content = <<-EOT
 PROJECT_NAME=${var.project_name}

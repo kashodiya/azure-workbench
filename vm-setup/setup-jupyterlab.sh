@@ -2,13 +2,13 @@
 
 echo "[JUPYTERLAB] Setting up JupyterLab..."
 
-# Install Python3 and pip if not already installed
-echo "[JUPYTERLAB] Checking Python3 and pip installation..."
+# Python3 and pip should already be installed by main.sh
+echo "[JUPYTERLAB] Verifying Python3 and pip installation..."
 if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
-    echo "[JUPYTERLAB] Installing Python3 and pip..."
-    sudo apt install -y python3 python3-pip
+    echo "[JUPYTERLAB] Error: Python3 or pip3 not found. This should have been installed by main.sh"
+    exit 1
 else
-    echo "[JUPYTERLAB] Python3 and pip already installed"
+    echo "[JUPYTERLAB] Python3 and pip3 verified"
 fi
 
 # Create jupyter directory
@@ -24,7 +24,7 @@ fi
 echo "[JUPYTERLAB] Checking JupyterLab installation..."
 if ! sudo -u azureuser bash -c 'command -v jupyter-lab' &> /dev/null; then
     echo "[JUPYTERLAB] Installing JupyterLab with pip..."
-    sudo -u azureuser bash -c 'cd /home/azureuser/jupyter && pip3 install --user --quiet jupyterlab'
+    sudo -u azureuser bash -c 'cd /home/azureuser/jupyter && PATH="/home/azureuser/.local/bin:$PATH" pip3 install --user --quiet jupyterlab'
 else
     echo "[JUPYTERLAB] JupyterLab already installed"
 fi

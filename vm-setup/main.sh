@@ -5,24 +5,73 @@ echo "[MAIN] Starting main setup script..."
 echo "[MAIN] Current user: $(whoami)"
 echo "[MAIN] Current directory: $(pwd)"
 
+# Copy docker and caddy folders from azure-workbench to home directory
+echo "[MAIN] Copying docker and caddy folders..."
+if [ ! -d "/home/azureuser/azure-workbench" ]; then
+    echo -e "\033[1m[WARNING] /home/azureuser/azure-workbench folder does not exist!\033[0m"
+else
+    if [ -d "/home/azureuser/azure-workbench/docker" ] && [ ! -d "/home/azureuser/docker" ]; then
+        cp -r /home/azureuser/azure-workbench/docker /home/azureuser/
+        echo "[MAIN] Docker folder copied successfully"
+    elif [ -d "/home/azureuser/docker" ]; then
+        echo -e "\033[1m[MAIN] Docker folder already exists, skipping copy\033[0m"
+    else
+        echo "[MAIN] Docker folder not found in azure-workbench"
+    fi
+    
+    if [ -d "/home/azureuser/azure-workbench/caddy" ] && [ ! -d "/home/azureuser/caddy" ]; then
+        cp -r /home/azureuser/azure-workbench/caddy /home/azureuser/
+        echo "[MAIN] Caddy folder copied successfully"
+    elif [ -d "/home/azureuser/caddy" ]; then
+        echo -e "\033[1m[MAIN] Caddy folder already exists, skipping copy\033[0m"
+    else
+        echo "[MAIN] Caddy folder not found in azure-workbench"
+    fi
+fi
+
 # Update system packages once at the beginning (only if not updated recently)
 echo "[MAIN] Checking if system packages need updating..."
 if [ ! -f /var/lib/apt/periodic/update-success-stamp ] || [ $(find /var/lib/apt/periodic/update-success-stamp -mtime +1) ]; then
-    echo "[MAIN] Updating system packages..."
-    sudo apt update && sudo apt upgrade -y
+    echo "[MAIN] Updating system packages and installing essential packages..."
+    sudo apt-get update && sudo apt-get upgrade -y
+    
+    # Install essential packages that other scripts might need
+    PACKAGES_TO_INSTALL=""
+    if ! command -v envsubst &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL gettext-base"
+    fi
+    if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL python3 python3-pip"
+    fi
+    if ! command -v expect &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL expect"
+    fi
+    
+    if [ -n "$PACKAGES_TO_INSTALL" ]; then
+        echo "[MAIN] Installing additional packages:$PACKAGES_TO_INSTALL"
+        sudo apt-get install -y $PACKAGES_TO_INSTALL
+    fi
+    
     echo "[MAIN] System update completed with exit code: $?"
 else
     echo "[MAIN] System packages recently updated, skipping update"
-fi
-
-# Install gettext for envsubst
-echo "[MAIN] Checking if gettext is installed..."
-if ! command -v envsubst &> /dev/null; then
-    echo "[MAIN] Installing gettext for template substitution..."
-    sudo apt install -y gettext-base
-    echo "[MAIN] gettext installation completed with exit code: $?"
-else
-    echo "[MAIN] gettext already installed, skipping installation"
+    
+    # Still check for essential packages even if system was recently updated
+    PACKAGES_TO_INSTALL=""
+    if ! command -v envsubst &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL gettext-base"
+    fi
+    if ! command -v python3 &> /dev/null || ! command -v pip3 &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL python3 python3-pip"
+    fi
+    if ! command -v expect &> /dev/null; then
+        PACKAGES_TO_INSTALL="$PACKAGES_TO_INSTALL expect"
+    fi
+    
+    if [ -n "$PACKAGES_TO_INSTALL" ]; then
+        echo "[MAIN] Installing missing essential packages:$PACKAGES_TO_INSTALL"
+        sudo apt-get install -y $PACKAGES_TO_INSTALL
+    fi
 fi
 
 # Get project name - use hardcoded value since it's consistent
@@ -33,16 +82,50 @@ echo "[MAIN] Project name: $PROJECT_NAME"
 # Set default values (replace with your actual configuration method)
 echo "[MAIN] Setting default configuration values..."
 OPENHANDS_LITELLM_KEY="your-litellm-key-here"
-ADMIN_PASSWORD="admin123"
+if [ -f "/home/azureuser/azure-workbench/terraform/outputs.env" ]; then
+    MASTER_PASSWORD=$(grep "^MASTER_PASSWORD=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
+fi
+MASTER_PASSWORD=${MASTER_PASSWORD:-"admin123"}
 
 # Export variables for use in child scripts
 export OPENHANDS_LITELLM_KEY="$OPENHANDS_LITELLM_KEY"
-export ADMIN_PASSWORD="$ADMIN_PASSWORD"
+export MASTER_PASSWORD="$MASTER_PASSWORD"
 export OPENHANDS_VSCODE_TOKEN="vscode-token-$(date +%s)"
 
 echo "[MAIN] Configuration retrieved successfully."
 echo "[MAIN] LITELLM_KEY length: ${#OPENHANDS_LITELLM_KEY}"
-echo "[MAIN] ADMIN_PASSWORD length: ${#ADMIN_PASSWORD}"
+echo "[MAIN] MASTER_PASSWORD length: ${#MASTER_PASSWORD}"
+
+# Set AZURE_API_KEY and OPENAI_ENDPOINT in .bashrc if not already present
+echo "[MAIN] Setting up Azure OpenAI environment variables..."
+if [ -f "/home/azureuser/azure-workbench/terraform/outputs.env" ]; then
+    AZURE_API_KEY=$(grep "^OPENAI_KEY=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
+    OPENAI_ENDPOINT=$(grep "^OPENAI_ENDPOINT=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
+    OPENAI_MODEL_VERSION=$(grep "^OPENAI_MODEL_VERSION=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
+    
+    if [ -n "$AZURE_API_KEY" ] && ! grep -q "export AZURE_API_KEY=" /home/azureuser/.bashrc; then
+        echo "export AZURE_API_KEY=\"$AZURE_API_KEY\"" >> /home/azureuser/.bashrc
+        echo "[MAIN] AZURE_API_KEY added to .bashrc"
+    elif grep -q "export AZURE_API_KEY=" /home/azureuser/.bashrc; then
+        echo "[MAIN] AZURE_API_KEY already exists in .bashrc"
+    fi
+    
+    if [ -n "$OPENAI_ENDPOINT" ] && ! grep -q "export OPENAI_ENDPOINT=" /home/azureuser/.bashrc; then
+        echo "export OPENAI_ENDPOINT=\"$OPENAI_ENDPOINT\"" >> /home/azureuser/.bashrc
+        echo "[MAIN] OPENAI_ENDPOINT added to .bashrc"
+    elif grep -q "export OPENAI_ENDPOINT=" /home/azureuser/.bashrc; then
+        echo "[MAIN] OPENAI_ENDPOINT already exists in .bashrc"
+    fi
+    
+    if [ -n "$OPENAI_MODEL_VERSION" ] && ! grep -q "export OPENAI_MODEL_VERSION=" /home/azureuser/.bashrc; then
+        echo "export OPENAI_MODEL_VERSION=\"$OPENAI_MODEL_VERSION\"" >> /home/azureuser/.bashrc
+        echo "[MAIN] OPENAI_MODEL_VERSION added to .bashrc"
+    elif grep -q "export OPENAI_MODEL_VERSION=" /home/azureuser/.bashrc; then
+        echo "[MAIN] OPENAI_MODEL_VERSION already exists in .bashrc"
+    fi
+else
+    echo "[MAIN] outputs.env file not found, skipping Azure OpenAI setup"
+fi
 
 # Installation control flags - set to "true" to install, "false" to skip
 INSTALL_DOCKER=${INSTALL_DOCKER:-true}
@@ -82,14 +165,6 @@ else
 fi
 
 if [ "$INSTALL_DOCKER" = "true" ]; then
-    echo "[MAIN] Creating Docker network..."
-    if ! docker network ls | grep -q shared_network; then
-        docker network create shared_network
-        echo "[MAIN] Docker network creation completed with exit code: $?"
-    else
-        echo "[MAIN] Docker network 'shared_network' already exists, skipping creation"
-    fi
-    
     echo "[MAIN] Running Docker Compose installation..."
     bash ./install-docker-compose.sh
     echo "[MAIN] Docker Compose installation completed with exit code: $?"

@@ -23,7 +23,7 @@ if [ ! -d "/opt/openvscode-server" ]; then
     # Create systemd service
     echo "[VSCODE] Creating systemd service..."
     if [ ! -f "/etc/systemd/system/openvscode-server.service" ]; then
-        cat > /etc/systemd/system/openvscode-server.service << EOF
+        sudo tee /etc/systemd/system/openvscode-server.service > /dev/null << EOF
 [Unit]
 Description=OpenVSCode Server
 After=network.target
@@ -46,16 +46,16 @@ EOF
     fi
     
     echo "[VSCODE] Reloading systemd and starting OpenVSCode Server service..."
-    systemctl daemon-reload
-    if ! systemctl is-enabled openvscode-server &>/dev/null; then
-        systemctl enable openvscode-server
+    sudo systemctl daemon-reload
+    if ! sudo systemctl is-enabled openvscode-server &>/dev/null; then
+        sudo systemctl enable openvscode-server
         echo "[VSCODE] Enabled OpenVSCode Server service"
     fi
-    if ! systemctl is-active openvscode-server &>/dev/null; then
-        systemctl start openvscode-server
+    if ! sudo systemctl is-active openvscode-server &>/dev/null; then
+        sudo systemctl start openvscode-server
         echo "[VSCODE] Started OpenVSCode Server service"
     fi
-    echo "[VSCODE] Service status: $(systemctl is-active openvscode-server)"
+    echo "[VSCODE] Service status: $(sudo systemctl is-active openvscode-server)"
     echo "[VSCODE] OpenVSCode Server service started and enabled."
 else
     echo "[VSCODE] OpenVSCode Server already installed, skipping installation."

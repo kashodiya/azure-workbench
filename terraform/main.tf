@@ -13,6 +13,14 @@ terraform {
       source  = "hashicorp/http"
       version = "~>3.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~>3.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~>4.0"
+    }
   }
 }
 
@@ -26,3 +34,6 @@ provider "azurerm" {
 data "azurerm_resource_group" "main" {
   name = var.resource_group_name
 }
+
+# Get current Azure client configuration
+data "azurerm_client_config" "current" {}

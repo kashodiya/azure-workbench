@@ -1,0 +1,5 @@
+# Open-WebUI
+:5004 {
+    import common
+    reverse_proxy localhost:8101
+}

@@ -1,0 +1,7 @@
+model_list:
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: azure/chatgpt-v-2
+      api_base: ${OPENAI_ENDPOINT}
+      api_version: ${OPENAI_MODEL_VERSION}
+      api_key: ${AZURE_API_KEY}

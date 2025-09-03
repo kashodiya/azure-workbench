@@ -43,7 +43,7 @@ resource "azurerm_network_security_group" "main" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "22"
-    source_address_prefix      = local.my_ip
+    source_address_prefixes    = local.allowed_ips
     destination_address_prefix = "*"
   }
 
@@ -55,7 +55,7 @@ resource "azurerm_network_security_group" "main" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "80"
-    source_address_prefix      = local.my_ip
+    source_address_prefixes    = local.allowed_ips
     destination_address_prefix = "*"
   }
 
@@ -67,7 +67,31 @@ resource "azurerm_network_security_group" "main" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "443"
-    source_address_prefix      = local.my_ip
+    source_address_prefixes    = local.allowed_ips
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AppPorts5000-9000"
+    priority                   = 1004
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["5000-9000"]
+    source_address_prefixes    = local.allowed_ips
+    destination_address_prefix = "*"
+  }
+
+  security_rule {
+    name                       = "AppPorts30000-60000"
+    priority                   = 1005
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_ranges    = ["30000-60000"]
+    source_address_prefixes    = local.allowed_ips
     destination_address_prefix = "*"
   }
 
@@ -79,6 +103,7 @@ resource "azurerm_network_interface" "main" {
   name                = "${var.project_name}-nic"
   location            = data.azurerm_resource_group.main.location
   resource_group_name = data.azurerm_resource_group.main.name
+  accelerated_networking_enabled = true
 
   ip_configuration {
     name                          = "internal"

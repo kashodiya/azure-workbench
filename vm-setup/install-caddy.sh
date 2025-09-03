@@ -5,16 +5,14 @@ command_exists() {
 }
 
 generate_caddy_users() {
-    if [[ -z "$ADMIN_PASSWORD" ]]; then
-        echo "[CADDY] Error: ADMIN_PASSWORD not set"
+    if [[ -z "$MASTER_PASSWORD" ]]; then
+        echo "[CADDY] Error: MASTER_PASSWORD not set"
         return 1
     fi
     
-    echo "[CADDY] Installing expect..."
-    sudo apt install expect -y
     echo "[CADDY] Generating admin password hash..."
-    export PASSWORD="$ADMIN_PASSWORD"
-    export VERIFICATION_PASSWORD="$ADMIN_PASSWORD"
+    export PASSWORD="$MASTER_PASSWORD"
+    export VERIFICATION_PASSWORD="$MASTER_PASSWORD"
     
     EXPECT_SCRIPT=$(mktemp)
     cat > "$EXPECT_SCRIPT" << 'EOF'
@@ -80,7 +78,7 @@ else
 
     sudo openssl genrsa -out $CERT_DIR/server.key 2048
 
-    cat << EOF > $CERT_DIR/server.cnf
+    sudo tee $CERT_DIR/server.cnf > /dev/null << EOF
 [req]
 default_bits = 2048
 prompt = no
@@ -130,29 +128,29 @@ EOF
     # Create /etc/caddy directory if it doesn't exist
     sudo mkdir -p /etc/caddy
     
-    if [ -f "/home/azureuser/source/caddy/Caddyfile" ]; then
-        sudo cp /home/azureuser/source/caddy/Caddyfile /etc/caddy/
+    if [ -f "/home/azureuser/azure-workbench/caddy/Caddyfile" ]; then
+        sudo cp /home/azureuser/azure-workbench/caddy/Caddyfile /etc/caddy/
         echo "[CADDY] Caddyfile copied successfully"
     else
-        echo "[CADDY] Warning: /home/azureuser/source/caddy/Caddyfile not found"
+        echo "[CADDY] Warning: /home/azureuser/azure-workbench/caddy/Caddyfile not found"
     fi
     
-    if [ -f "/home/azureuser/source/caddy/users.txt" ]; then
-        sudo cp /home/azureuser/source/caddy/users.txt /etc/caddy/
+    if [ -f "/home/azureuser/azure-workbench/caddy/users.txt" ]; then
+        sudo cp /home/azureuser/azure-workbench/caddy/users.txt /etc/caddy/
         echo "[CADDY] users.txt copied successfully"
     else
-        echo "[CADDY] Warning: /home/azureuser/source/caddy/users.txt not found"
+        echo "[CADDY] Warning: /home/azureuser/azure-workbench/caddy/users.txt not found"
     fi
     
-    if [ -d "/home/azureuser/source/caddy/apps" ]; then
-        sudo cp -R /home/azureuser/source/caddy/apps /etc/caddy/
+    if [ -d "/home/azureuser/azure-workbench/caddy/apps" ]; then
+        sudo cp -R /home/azureuser/azure-workbench/caddy/apps /etc/caddy/
         echo "[CADDY] Apps folder copied successfully"
     else
-        echo "[CADDY] Warning: /home/azureuser/source/caddy/apps directory not found"
+        echo "[CADDY] Warning: /home/azureuser/azure-workbench/caddy/apps directory not found"
     fi
 
     if [ ! -f "/etc/systemd/system/caddy.service" ]; then
-        cat << EOF > /etc/systemd/system/caddy.service
+        sudo tee /etc/systemd/system/caddy.service > /dev/null << EOF
 [Unit]
 Description=Caddy
 After=network.target

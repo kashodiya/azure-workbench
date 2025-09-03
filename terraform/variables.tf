@@ -22,7 +22,7 @@ variable "vm_name" {
 variable "vm_size" {
   description = "Size of the virtual machine"
   type        = string
-  default     = "Standard_B2s"
+  default     = "Standard_D4s_v3"
 }
 
 variable "admin_username" {
@@ -41,5 +41,28 @@ variable "tags" {
   }
 }
 
+variable "allowed_ips" {
+  description = "List of IP addresses allowed to access the VM"
+  type        = list(string)
+  default     = []
+}
 
+variable "azure_api_key" {
+  description = "Azure OpenAI API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "admin_password" {
+  description = "Admin password for Caddy authentication"
+  type        = string
+  default     = "admin123"
+  sensitive   = true
+}
+
+variable "timezone" {
+  description = "Timezone for VM scheduling (e.g., 'UTC', 'America/New_York')"
+  type        = string
+  default     = "UTC"
+}
 

@@ -22,4 +22,4 @@ else
 fi
 
 echo "[UV] Testing uv installation..."
-sudo -u azureuser bash -c 'source /home/azureuser/.bashrc && uv --version' || echo "uv not found in PATH"
+sudo -u azureuser bash -l -c 'uv --version' || echo "uv not found in PATH"
