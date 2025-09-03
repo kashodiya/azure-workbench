@@ -26,6 +26,13 @@ SUBNET_ID=${azurerm_subnet.internal.id}
 NSG_ID=${azurerm_network_security_group.main.id}
 NIC_ID=${azurerm_network_interface.main.id}
 SSH_COMMAND=ssh -i private_key.pem ${var.admin_username}@${azurerm_public_ip.main.ip_address}
+OPENAI_SERVICE_NAME=${azurerm_cognitive_account.openai.name}
+OPENAI_ENDPOINT=${azurerm_cognitive_account.openai.endpoint}
+OPENAI_RESOURCE_ID=${azurerm_cognitive_account.openai.id}
+OPENAI_DEPLOYMENT_NAME=${azurerm_cognitive_deployment.gpt4o.name}
+OPENAI_MODEL_NAME=${azurerm_cognitive_deployment.gpt4o.model[0].name}
+OPENAI_MODEL_VERSION=${azurerm_cognitive_deployment.gpt4o.model[0].version}
 EOT
   filename = "outputs.env"
 }
+
