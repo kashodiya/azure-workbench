@@ -26,7 +26,12 @@ terraform {
 
 # Configure the Microsoft Azure Provider
 provider "azurerm" {
-  features {}
+  features {
+    app_configuration {
+      purge_soft_delete_on_destroy = true
+      recover_soft_deleted         = false
+    }
+  }
   skip_provider_registration = true
 }
 

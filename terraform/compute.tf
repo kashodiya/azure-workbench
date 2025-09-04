@@ -191,9 +191,18 @@ resource "azurerm_linux_virtual_machine" "main" {
     storage_account_uri = azurerm_storage_account.main.primary_blob_endpoint
   }
 
-
+  identity {
+    type = "SystemAssigned"
+  }
 
   tags = var.tags
+}
+
+# Assign Contributor role to VM's managed identity
+resource "azurerm_role_assignment" "vm_contributor" {
+  scope                = data.azurerm_resource_group.main.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_linux_virtual_machine.main.identity[0].principal_id
 }
 
 

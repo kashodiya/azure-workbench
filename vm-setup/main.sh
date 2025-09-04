@@ -128,6 +128,7 @@ else
 fi
 
 # Installation control flags - set to "true" to install, "false" to skip
+INSTALL_AZ_CLI=${INSTALL_AZ_CLI:-true}
 INSTALL_DOCKER=${INSTALL_DOCKER:-true}
 INSTALL_UV=${INSTALL_UV:-true}
 INSTALL_JUPYTERLAB=${INSTALL_JUPYTERLAB:-true}
@@ -140,6 +141,14 @@ INSTALL_VSCODE=${INSTALL_VSCODE:-true}
 INSTALL_CADDY=${INSTALL_CADDY:-true}
 
 # Run installation scripts
+if [ "$INSTALL_AZ_CLI" = "true" ]; then
+    echo "[MAIN] Installing Azure CLI..."
+    bash ./install-az-cli.sh
+    echo "[MAIN] Azure CLI installation completed with exit code: $?"
+else
+    echo "[MAIN] Skipping Azure CLI installation"
+fi
+
 if [ "$INSTALL_DOCKER" = "true" ]; then
     echo "[MAIN] Running Docker installation..."
     bash ./install-docker.sh

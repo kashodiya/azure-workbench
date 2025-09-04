@@ -3,6 +3,8 @@ output "vm_resource_id" {
   description = "Resource ID of the virtual machine"
 }
 
+
+
 # Save private key to file
 resource "local_file" "private_key" {
   content         = tls_private_key.ssh.private_key_pem
@@ -13,6 +15,7 @@ resource "local_file" "private_key" {
 # Create outputs.env file
 resource "local_file" "outputs_env" {
   content = <<-EOT
+SUBSCRIPTION_ID=${data.azurerm_client_config.current.subscription_id}
 PROJECT_NAME=${var.project_name}
 RESOURCE_GROUP_NAME=${data.azurerm_resource_group.main.name}
 RESOURCE_GROUP_LOCATION=${data.azurerm_resource_group.main.location}
@@ -32,6 +35,7 @@ OPENAI_RESOURCE_ID=${azurerm_cognitive_account.openai.id}
 OPENAI_DEPLOYMENT_NAME=${azurerm_cognitive_deployment.gpt4o.name}
 OPENAI_MODEL_NAME=${azurerm_cognitive_deployment.gpt4o.model[0].name}
 OPENAI_MODEL_VERSION=${azurerm_cognitive_deployment.gpt4o.model[0].version}
+
 EOT
   filename = "outputs.env"
 }
