@@ -96,36 +96,8 @@ echo "[MAIN] Configuration retrieved successfully."
 echo "[MAIN] LITELLM_KEY length: ${#OPENHANDS_LITELLM_KEY}"
 echo "[MAIN] MASTER_PASSWORD length: ${#MASTER_PASSWORD}"
 
-# Set AZURE_API_KEY and OPENAI_ENDPOINT in .bashrc if not already present
-echo "[MAIN] Setting up Azure OpenAI environment variables..."
-if [ -f "/home/azureuser/azure-workbench/terraform/outputs.env" ]; then
-    AZURE_API_KEY=$(grep "^OPENAI_KEY=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
-    OPENAI_ENDPOINT=$(grep "^OPENAI_ENDPOINT=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
-    OPENAI_MODEL_VERSION=$(grep "^OPENAI_MODEL_VERSION=" /home/azureuser/azure-workbench/terraform/outputs.env | cut -d'=' -f2)
-    
-    if [ -n "$AZURE_API_KEY" ] && ! grep -q "export AZURE_API_KEY=" /home/azureuser/.bashrc; then
-        echo "export AZURE_API_KEY=\"$AZURE_API_KEY\"" >> /home/azureuser/.bashrc
-        echo "[MAIN] AZURE_API_KEY added to .bashrc"
-    elif grep -q "export AZURE_API_KEY=" /home/azureuser/.bashrc; then
-        echo "[MAIN] AZURE_API_KEY already exists in .bashrc"
-    fi
-    
-    if [ -n "$OPENAI_ENDPOINT" ] && ! grep -q "export OPENAI_ENDPOINT=" /home/azureuser/.bashrc; then
-        echo "export OPENAI_ENDPOINT=\"$OPENAI_ENDPOINT\"" >> /home/azureuser/.bashrc
-        echo "[MAIN] OPENAI_ENDPOINT added to .bashrc"
-    elif grep -q "export OPENAI_ENDPOINT=" /home/azureuser/.bashrc; then
-        echo "[MAIN] OPENAI_ENDPOINT already exists in .bashrc"
-    fi
-    
-    if [ -n "$OPENAI_MODEL_VERSION" ] && ! grep -q "export OPENAI_MODEL_VERSION=" /home/azureuser/.bashrc; then
-        echo "export OPENAI_MODEL_VERSION=\"$OPENAI_MODEL_VERSION\"" >> /home/azureuser/.bashrc
-        echo "[MAIN] OPENAI_MODEL_VERSION added to .bashrc"
-    elif grep -q "export OPENAI_MODEL_VERSION=" /home/azureuser/.bashrc; then
-        echo "[MAIN] OPENAI_MODEL_VERSION already exists in .bashrc"
-    fi
-else
-    echo "[MAIN] outputs.env file not found, skipping Azure OpenAI setup"
-fi
+# Source outputs.env dynamically in .bashrc
+grep -q "source.*outputs.env" /home/azureuser/.bashrc || { echo "# Auto-source terraform outputs" >> /home/azureuser/.bashrc; echo "[ -f /home/azureuser/azure-workbench/terraform/outputs.env ] && source /home/azureuser/azure-workbench/terraform/outputs.env" >> /home/azureuser/.bashrc; }
 
 # Installation control flags - set to "true" to install, "false" to skip
 INSTALL_AZ_CLI=${INSTALL_AZ_CLI:-true}
