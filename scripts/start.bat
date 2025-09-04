@@ -32,17 +32,20 @@ doskey tfd=terraform destroy
 doskey tfda=terraform destroy -auto-approve
 doskey tfo=terraform output
 doskey tft=terraform taint azurerm_linux_virtual_machine.main
-doskey ssh=%SSH_COMMAND%
+doskey ssh=%SSH_COMMAND_FQDN%
 doskey env=type outputs.env
-doskey deploy=call "%~dp0deploy-to-vm.bat" %ADMIN_USERNAME% %PUBLIC_IP%
+doskey deploy=call "%~dp0deploy-to-vm.bat" %ADMIN_USERNAME% %VM_FQDN%
 doskey reload=call "%~dp0start.bat"
 doskey start=az vm start --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
 doskey restart=az vm restart --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
 doskey shutdown=az vm deallocate --resource-group %RESOURCE_GROUP_NAME% --name %VM_NAME%
-doskey forget=ssh-keygen -R %PUBLIC_IP%
-doskey openhands=start https://%PUBLIC_IP%:5000
-doskey portainer=start https://172.191.76.32:5003
-doskey vscode=start https://172.191.76.32:5002/?folder=/home/azureuser
+doskey forget=ssh-keygen -R %VM_FQDN%
+doskey openhands=start https://%VM_FQDN%:5000
+doskey portainer=start https://%VM_FQDN%:5003
+doskey vscode=start https://%VM_FQDN%:5002/?folder=/home/azureuser
+doskey webui=start https://%VM_FQDN%:5004
+doskey jupyter=start https://%VM_FQDN%:5006
+doskey searxng=start https://%VM_FQDN%:5005
 
 echo.
 echo ========================================
@@ -66,4 +69,7 @@ echo   forget  - forget SSH host key
 echo   openhands - open OpenHands in browser
 echo   portainer - open Portainer in browser
 echo   vscode  - open VSCode in browser
+echo   webui   - open Open-WebUI in browser
+echo   jupyter - open JupyterLab in browser
+echo   searxng - open SearXNG in browser
 echo ========================================

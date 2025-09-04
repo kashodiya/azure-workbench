@@ -25,6 +25,7 @@ resource "azurerm_public_ip" "main" {
   location            = data.azurerm_resource_group.main.location
   allocation_method   = "Static"
   sku                 = "Standard"
+  domain_name_label   = "${var.project_name}-vm"
 
   tags = var.tags
 }
